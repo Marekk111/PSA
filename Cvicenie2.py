@@ -74,6 +74,7 @@ def addMovie(paMovieLibrary):
     genre = input("Enter movie genre: ")
     earn = input("Enter movie earnings in milions of $: ")
     rating = input("Enter rating in %: ")
+    duration = input("Enter duration in minutes: ")
 
     movie = Movie(title,year,genre,earn,rating,duration)
     paMovieLibrary.addMovie(movie)
