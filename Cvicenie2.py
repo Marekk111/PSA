@@ -1,4 +1,4 @@
-#!/usr/bin/env python111
+#!/usr/bin/env python3
 APP_VERSION = "1.0"
 
 class Movie:
@@ -9,88 +9,80 @@ class Movie:
         self.aEarnings = paEarnings
         self.aRating = paRating
         self.aDuration = paDuration
-    
     def toString(self):
-        return "{:20} {:4} {:10} $M{:3} {:3}% {:3}m".format(self.aTitle, 
-                                                        self.aYear, 
-                                                        self.aGenre, 
-                                                        self.aRating, 
+        return "{:20} {} {:10} $M{:3} {:3}% {:3}m".format(self.aTitle,
+                                                        self.aYear,
+                                                        self.aGenre,
+                                                        self.aEarnings,
+                                                        self.aRating,
                                                         self.aDuration)
 
-class MovieLibrary:
+class MovieLibrary():
     def __init__(self):
-        self.aLibrary = list()
-
+        self.aMovies = list()
     def addMovie(self, paMovie):
-        self.aLibrary.append(paMovie)
+        self.aMovies.append(paMovie)
     def removeMovie(self, paMovieIndex):
-        self.aLibrary.pop(paMovieIndex)
+        self.aMovies.pop(paMovieIndex)
     def printLibrary(self, paPrintIndex):
         if paPrintIndex:
             indexString = " ID "
         else:
             indexString = ""
-
-        header = "{}{:20} {:4} {:10} {:5} {:4} {:4}".format(indexString,
+        header = "{}{:20} {} {:10} {:5} {:4} {:4}".format(indexString,
                                                         "Title",
                                                         "Year",
                                                         "Genre",
-                                                        "Earn"
-                                                        "RATE",
+                                                        "Earn",
+                                                        "RAT",
                                                         "Time")
         print(header)
-        print("-"*len(header))
-        
+        print("-"*len(header))                                                
         index = 0
-        for movie in self.aLibrary:
+        for movie in self.aMovies:
             if paPrintIndex:
-                print("{}. {}".format(index, movie.toString()))
+                indexString = "{:3} ".format(index)
             else:
-                print(movie.toString())
-
-            index += 1        
-
-                
+                indexString = ""
+            print(indexString + movie.toString())
+            index += 1
 
 def menu(paMovieLibrary):
     while True:
-
-        print ("Welcome to Movie Library v{}".format(APP_VERSION))
+        print("Welcome to Movie Library v{}".format(APP_VERSION))
         print(" Add Movie (1)")
         print(" Remove Movie (2)")
         print(" Show library content (3)")
-        print(" End program (q)")
-        opt = input(" Select an option from the menu: ")
+        print(" Quit program (q)")
+        opt = input("Select an option from the menu: ")
 
         if opt == "1":
             addMovie(paMovieLibrary)
         elif opt == "2":
             removeMovie(paMovieLibrary)
         elif opt == "3":
-            showContent(paMovieLibrary)
+            paMovieLibrary.printLibrary(False)
         elif opt == "q":
-            print("Bye! Thank for using my program.")
+            print("Bye! Thanks for my usage.")
             exit(0)
         else:
-            print("No such option exists.")
+            print("Incorrect option!!!")
 
 def addMovie(paMovieLibrary):
     title = input("Enter movie title: ")
-    year = input("Enter movie year: ")
+    year = input("Enter year: ")
     genre = input("Enter movie genre: ")
-    earnings = input("Enter movie earnings in $mil : ")
-    rating = input("Enter movie rating: ")
-    duration = input("Enter movie duration in minutes: ")
-    paMovie = Movie(title, year, genre, earnings, rating, duration)
-    paMovieLibrary.addMovie(paMovie)
+    earn = input("Enter movie earnings in milions of $: ")
+    rating = input("Enter rating in %: ")
+
+    movie = Movie(title,year,genre,earn,rating,duration)
+    paMovieLibrary.addMovie(movie)
 
 def removeMovie(paMovieLibrary):
     paMovieLibrary.printLibrary(True)
-    index = input("Enter movie index for removal: ")
-    paMovieLibrary.removeMovie(eval(index))
 
-def showContent(paMovieLibrary):
-    paMovieLibrary.printLibrary(True)
+    index = input("Enter movie index for removal: ")
+    paMovieLibrary.removeMovie(int(index))
 
 if __name__ == "__main__":
     library = MovieLibrary()
