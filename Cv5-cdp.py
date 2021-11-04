@@ -40,6 +40,36 @@ class Llc():
                 + struct.pack("!H", self.aPID)
                 + self.aPayload)
 
+class CDP():
+    def __init__(self):
+        self.aVersion = 1
+        self.aTTL = 180
+        self.aChecksum = 0x0000
+        self.aTLVs = list()
+    
+    def pridajTLV(self, paTLV):
+        self.aTLVs.append(paTLV)
+
+    def dajByty(self):
+        byty = struct.pack("!2BH", 
+                            self.aVersion, 
+                            self.aTTL, 
+                            self.aChecksum)
+        for tlv in self.aTLVs:
+            tlv.dajByty()
+            byty += tlv.dajByty()
+        #TODO: vypocitat checksum v bajty
+        #TODO: nahradit checksum v bajty
+        return byty 
+
+class TLV():
+    def __init__(self, paTyp):
+        self.aType = paTyp
+        self.aLength = 4
+    
+    def dajByty(self):
+        return struct.pack("!2H", self.aType, self.aLength)
+
 if __name__ == "__main__":
     IFACES.show()
     
@@ -47,9 +77,8 @@ if __name__ == "__main__":
     #rozhranie = "Software Loopback Interface 1"
     
     #rozhranie podla indexu
-    #rozhranie = IFACES.dev_from_index(1)
-    #sock = conf.L2socket(iface=rozhranie)
-    #sock.send("Ahoj".encode())
+    rozhranie = IFACES.dev_from_index(13)
+    sock = conf.L2socket(iface=rozhranie)
     llc = Llc()
     llc.pridajPayload("Ahoj".encode())
     ramec = EthRamec("01:02:03:04:05:06")
