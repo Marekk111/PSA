@@ -38,7 +38,7 @@ class Llc():
         return (struct.pack("!3B", self.aDSAP, self.aSSAP, self.aCTRL) 
                 + convertMAC(self.aOUI)
                 + struct.pack("!H", self.aPID)
-                + self.aPayload)
+                + self.aPayload.dajByty())
 
 class CDP():
     def __init__(self):
@@ -70,6 +70,26 @@ class TLV():
     def dajByty(self):
         return struct.pack("!2H", self.aType, self.aLength)
 
+class TLVDeviceID(TLV):
+    def __init__(self, paDeviceID):
+        TLV.__init__(self, 0x0001)
+        self.aDeviceID = paDeviceID
+
+    def dajByty(self):
+        idbyty = self.aDeviceID.encode()
+        self.aLength += len(idbyty)
+        return (TLV.dajByty(self) + idbyty)
+
+class TLVSoftware(TLVDeviceID):
+    def __init__(self, paSoftware):
+        super().__init__(paSoftware)
+        self.aType = 0x0005
+
+class TLVPlatform(TLVDeviceID):
+    def __init__(self):
+        super().__init__("Python3")
+        self.aType = 0x0006
+
 if __name__ == "__main__":
     IFACES.show()
     
@@ -77,7 +97,11 @@ if __name__ == "__main__":
     #rozhranie = "Software Loopback Interface 1"
     
     #rozhranie podla indexu
-    rozhranie = IFACES.dev_from_index(13)
+    cdp = CDP()
+    cdp.pridajTLV(TLVDeviceID("MSi TvojTatko Records"))
+    cdp.pridajTLV(TLVPlatform())
+    cdp.pridajTLV(TLVSoftware("Windows 10 x64 20H2"))
+    rozhranie = IFACES.dev_from_index(12)
     sock = conf.L2socket(iface=rozhranie)
     llc = Llc()
     llc.pridajPayload("Ahoj".encode())
