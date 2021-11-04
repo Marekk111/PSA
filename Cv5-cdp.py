@@ -6,6 +6,9 @@ def convertMAC(paMAC):
     #zmeni MAC adresu z hex cisla do bytov
     return bytes.fromhex(paMAC.replace(":", ""))
 
+def nastavBit(paVstup, paBit):
+    return paVstup | (1<<(paBit - 1))
+
 class EthRamec():
     def __init__(self, paSRCMAC):
         self.aDSTMAC = "01:00:0C:CC:CC:CC"
@@ -90,6 +93,31 @@ class TLVPlatform(TLVDeviceID):
         super().__init__("Python3")
         self.aType = 0x0006
 
+class TLVCapabilities():
+    def __init__(self, paRouter = False, paSwitch = False, paHost = False, paVOIP = False):
+        TLV.__init__(self, 0x0004)
+        self.aRouter = paRouter
+        self.aSwitch = paSwitch
+        self.aHost = paHost
+        self.aVOIP = paVOIP
+        self.aCapabilities = 0x00000000
+
+    def dajByty(self):
+        self.aLength += 4
+        
+        if self.aRouter:
+            self.aCapabilities = nastavBit(self.aCapabilities, 1)
+            #self.aCapabilities += 1
+        if self.aSwitch:
+            self.aCapabilities += 8
+        if self.aHost:
+            self.aCapabilities = nastavBit(self.aCapabilities, 5)
+        if self.aVOIP:
+            self.aCapabilities = nastavBit(self.aCapabilities, 8)
+            
+        return super().dajByty() + struct.pack("!I", self.aCapabilities)
+        
+
 if __name__ == "__main__":
     IFACES.show()
     
@@ -101,6 +129,7 @@ if __name__ == "__main__":
     cdp.pridajTLV(TLVDeviceID("MSi TvojTatko Records"))
     cdp.pridajTLV(TLVPlatform())
     cdp.pridajTLV(TLVSoftware("Windows 10 x64 20H2"))
+    cdp.pridajTLV(TLVCapabilities(True, True, True, True))
     rozhranie = IFACES.dev_from_index(12)
     sock = conf.L2socket(iface=rozhranie)
     llc = Llc()
