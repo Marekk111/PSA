@@ -4,8 +4,8 @@ import socket
 from enum import IntEnum
 import json
 
-ADRESS = "0.0.0.0"
-PORT = 9998
+ADRESA = "127.0.0.1"
+PORT = 9999
 
 class Sprava:
     def __init__(self, paOd, paKomu, paOperacia, paText):
@@ -17,12 +17,11 @@ class Sprava:
     @staticmethod
     def jsonParser(obj):
         return Sprava(obj['aOd'], obj['aKomu'], obj['aOperacia'], obj['aText'])
-        
 
 class Operacia(IntEnum):
     LOGIN = 1
     EXIT = 2
-    USERS = 3
+    USERS = 3        
 
 def napoveda():
     print("***Napoveda")
@@ -33,18 +32,17 @@ def napoveda():
 
 if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((ADRESS, PORT))
-    
-    print("Vita vas CHAT client.")
+    sock.connect((ADRESA, PORT))
+
+    print("Vita vas CHAT klient.")
     nick = input("Zadajte vas nick: ")
     napoveda()
-    # prihlasenie na server (pre zoznam pouzivatelov)
+    # prihlasenie sa na server (pre zoznam pouzivatelov)
     sprava = Sprava(nick, '', Operacia.LOGIN, '')
     jsonStr = json.dumps(sprava.__dict__)
-    sock.send(jsonStr.encode())    
-    
-    while(True):
+    sock.send(jsonStr.encode())
 
+    while(True):
         prikaz = input("Zadajte prikaz/spravu: ")
 
         if prikaz[0] == "\\":
@@ -64,12 +62,11 @@ if __name__ == "__main__":
                 jsonStr = json.dumps(sprava.__dict__)
                 sock.send(jsonStr.encode())
                 data = sock.recv(1500)
-                json.loads(data.decode(), object_hook=Sprava.jsonParser())
-                print("Zoznam pouzivatelov: " + Sprava.aText)
+                sprava = json.loads(data.decode(), object_hook=Sprava.jsonParser)
+                print("Zoznam pouzivatelov: " + sprava.aText)
                 continue
         
         zoznam = prikaz.split(";", 1)
         sprava = Sprava(nick, zoznam[0], '', zoznam[1])
         jsonStr = json.dumps(sprava.__dict__)
         sock.send(jsonStr.encode())
-            
